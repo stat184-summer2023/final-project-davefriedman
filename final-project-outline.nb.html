@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Names of all group members" />
+<meta name="author" content="Dave Friedman" />
 
 
 <title>Final Project Basic Outline</title>
@@ -1512,7 +1512,7 @@ window.initializeCodeFolding = function(show) {
     $(this).detach().appendTo(div);
 
     // add a show code button right above
-    var showCodeText = $('<span>' + (showThis ? 'Hide' : 'Code') + '</span>');
+    var showCodeText = $('<span>' + (showThis ? 'Hide' : 'Show') + '</span>');
     var showCodeButton = $('<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right"></button>');
     showCodeButton.append(showCodeText);
     showCodeButton
@@ -1538,7 +1538,7 @@ window.initializeCodeFolding = function(show) {
     //   * Change text
     //   * add a class for intermediate states styling
     div.on('hide.bs.collapse', function () {
-      showCodeText.text('Code');
+      showCodeText.text('Show');
       showCodeButton.addClass('btn-collapsing');
     });
     div.on('hidden.bs.collapse', function () {
@@ -1748,30 +1748,73 @@ display: none;
 
 
 <h1 class="title toc-ignore">Final Project Basic Outline</h1>
-<h4 class="author">Names of all group members</h4>
+<h4 class="author">Dave Friedman</h4>
 
 </div>
 
 
 <!-- rnb-text-begin -->
-<p>This is an outline for your final project. You can follow this
-outline, or you can modify it as you see fit. Do what works best for
-your project.</p>
+<pre class="r"><code>library(scales)
+library(textdata)
+library(tidytext)
+library(tidyverse)</code></pre>
 <div id="research-question" class="section level2">
 <h2>Research Question</h2>
 <p>State your general specific question and why it is interesting.</p>
 </div>
 <div id="data-processing" class="section level2">
 <h2>Data Processing</h2>
-<div id="data-intake" class="section level4">
-<h4>Data Intake</h4>
+<ul>
+<li><a href="https://classics.mit.edu/Aristotle/physics.html">Aristotle’s
+Physics</a></li>
+<li><a href="https://classics.mit.edu/Aristotle/metaphysics.html">Aristotle’s
+Metaphysics</a></li>
+</ul>
+<div id="data-intake" class="section level3">
+<h3>Data Intake</h3>
+<pre class="r"><code>timaeusE &lt;- base::readLines(con = &#39;timaeusE.txt&#39;)</code></pre>
 <p>Include R code and written explanation to import your
 <strong>TWO</strong> data sets.</p>
 </div>
-<div id="data-wrangling" class="section level4">
-<h4>Data Wrangling</h4>
+<div id="data-wrangling" class="section level3">
+<h3>Data Wrangling</h3>
+<div id="timaeus" class="section level4">
+<h4>Timaeus</h4>
 <p>Include R code and written explanation for wangling your data (you
 can make multiple wrangled data sets).</p>
+<pre class="r"><code>#base::writeLines(timaeusE)
+
+base::length(timaeusE)
+
+          stringr::str_length(timaeusE)
+base::sum(stringr::str_length(timaeusE))
+
+timaeusE  &lt;- timaeusE[! timaeusE %in% c(&#39;&#39;, &#39;\t&#39;)]
+base::length(timaeusE[! timaeusE %in% c(&#39;&#39;, &#39;\t&#39;)])
+
+          stringr::str_length(timaeusE)
+base::sum(stringr::str_length(timaeusE))
+
+timaeusE_df &lt;- tibble::tibble(section_num = 1:base::length(timaeusE), section = timaeusE)
+
+tidy_timaeusE &lt;-
+  timaeusE_df %&gt;%
+    tidytext::unnest_tokens(output = word, input = section, to_lower = TRUE) %&gt;%
+    dplyr::anti_join(tidytext::stop_words, by = &#39;word&#39;) %&gt;%
+    dplyr::anti_join(tibble::tibble(word = base::c(&#39;cf&#39;, &#39;ff&#39;, &#39;i.e&#39;, &#39;e.g&#39;, &#39;1&#39;, &#39;2&#39;, &#39;3&#39;)), by = &#39;word&#39;)
+  
+tidy_timaeusE %&gt;%
+  dplyr::count(word, sort = TRUE) %&gt;%
+  utils::head(10)
+
+tidy_timaeusE %&gt;%
+  dplyr::count(word, sort = TRUE) %&gt;%
+  dplyr::filter(n &gt; 30) %&gt;%
+  dplyr::mutate(word = stats::reorder(word, n)) %&gt;%
+  ggplot2::ggplot(ggplot2::aes(n, word)) +
+    geom_col() +
+    labs(y = NULL)</code></pre>
+</div>
 </div>
 </div>
 <div id="data-visualization" class="section level2">
@@ -1788,7 +1831,7 @@ you created.</p>
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiRmluYWwgUHJvamVjdCBCYXNpYyBPdXRsaW5lIgphdXRob3I6ICJOYW1lcyBvZiBhbGwgZ3JvdXAgbWVtYmVycyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKVGhpcyBpcyBhbiBvdXRsaW5lIGZvciB5b3VyIGZpbmFsIHByb2plY3QuIFlvdSBjYW4gZm9sbG93IHRoaXMgb3V0bGluZSwgb3IgeW91IGNhbiBtb2RpZnkgaXQgYXMgeW91IHNlZSBmaXQuIERvIHdoYXQgd29ya3MgYmVzdCBmb3IgeW91ciBwcm9qZWN0LiAKCiMjIFJlc2VhcmNoIFF1ZXN0aW9uIAoKU3RhdGUgeW91ciBnZW5lcmFsIHNwZWNpZmljIHF1ZXN0aW9uIGFuZCB3aHkgaXQgaXMgaW50ZXJlc3RpbmcuIAoKCgojIyBEYXRhIFByb2Nlc3NpbmcgCgojIyMjIERhdGEgSW50YWtlIAoKSW5jbHVkZSBSIGNvZGUgYW5kIHdyaXR0ZW4gZXhwbGFuYXRpb24gdG8gaW1wb3J0IHlvdXIgKipUV08qKiBkYXRhIHNldHMuCgojIyMjIERhdGEgV3JhbmdsaW5nIAoKSW5jbHVkZSBSIGNvZGUgYW5kIHdyaXR0ZW4gZXhwbGFuYXRpb24gZm9yIHdhbmdsaW5nIHlvdXIgZGF0YSAoeW91IGNhbiBtYWtlIG11bHRpcGxlIHdyYW5nbGVkIGRhdGEgc2V0cykuIAoKCgoKIyMgRGF0YSBWaXN1YWxpemF0aW9uCgpJbmNsdWRlIFIgY29kZSBhbmQgd3JpdHRlbiBleHBsYW5hdGlvbiBmb3IgeW91ciBkYXRhIHZpc3VhbGl6YXRpb24ocykgd2l0aCBhdCBsZWFzdCAzIHZhcmlhYmxlcy4gWW91IG11c3QgaGF2ZSAqKmF0IGxlYXN0Kiogb25lIGdyYXBoLiBZb3UgbWF5IGhhdmUgbW9yZSB0aGFuIG9uZSAoSSB3b3VsZCBlbmNvdXJhZ2UgeW91IHRvIGhhdmUgbW9yZSB0aGFuIG9uZSkuIAoKCgoKIyMgQ29uY2x1c2lvbgoKQW5zd2VyIHlvdXIgcmVzZWFyY2ggcXVlc3Rpb24gdXNpbmcgdGhlIGRhdGEgc2V0cyBhbmQgdmlzdWFsaXphdGlvbnMgeW91IGNyZWF0ZWQuIA==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAgIkZpbmFsIFByb2plY3QgQmFzaWMgT3V0bGluZSIKYXV0aG9yOiAiRGF2ZSBGcmllZG1hbiIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKYGBgcgpsaWJyYXJ5KHNjYWxlcykKbGlicmFyeSh0ZXh0ZGF0YSkKbGlicmFyeSh0aWR5dGV4dCkKbGlicmFyeSh0aWR5dmVyc2UpCmBgYAoKIyMgUmVzZWFyY2ggUXVlc3Rpb24KClN0YXRlIHlvdXIgZ2VuZXJhbCBzcGVjaWZpYyBxdWVzdGlvbiBhbmQgd2h5IGl0IGlzIGludGVyZXN0aW5nLiAKCiMjIERhdGEgUHJvY2Vzc2luZwoKKiBbQXJpc3RvdGxlJ3MgUGh5c2ljc10oaHR0cHM6Ly9jbGFzc2ljcy5taXQuZWR1L0FyaXN0b3RsZS9waHlzaWNzLmh0bWwpCiogW0FyaXN0b3RsZSdzIE1ldGFwaHlzaWNzXShodHRwczovL2NsYXNzaWNzLm1pdC5lZHUvQXJpc3RvdGxlL21ldGFwaHlzaWNzLmh0bWwpCgojIyMgRGF0YSBJbnRha2UKCmBgYHIKdGltYWV1c0UgPC0gYmFzZTo6cmVhZExpbmVzKGNvbiA9ICd0aW1hZXVzRS50eHQnKQpgYGAKCkluY2x1ZGUgUiBjb2RlIGFuZCB3cml0dGVuIGV4cGxhbmF0aW9uIHRvIGltcG9ydCB5b3VyICoqVFdPKiogZGF0YSBzZXRzLgoKIyMjIERhdGEgV3JhbmdsaW5nCgojIyMjIFRpbWFldXMKCkluY2x1ZGUgUiBjb2RlIGFuZCB3cml0dGVuIGV4cGxhbmF0aW9uIGZvciB3YW5nbGluZyB5b3VyIGRhdGEgKHlvdSBjYW4gbWFrZSBtdWx0aXBsZSB3cmFuZ2xlZCBkYXRhIHNldHMpLgoKYGBgcgojYmFzZTo6d3JpdGVMaW5lcyh0aW1hZXVzRSkKCmJhc2U6Omxlbmd0aCh0aW1hZXVzRSkKCiAgICAgICAgICBzdHJpbmdyOjpzdHJfbGVuZ3RoKHRpbWFldXNFKQpiYXNlOjpzdW0oc3RyaW5ncjo6c3RyX2xlbmd0aCh0aW1hZXVzRSkpCgp0aW1hZXVzRSAgPC0gdGltYWV1c0VbISB0aW1hZXVzRSAlaW4lIGMoJycsICdcdCcpXQpiYXNlOjpsZW5ndGgodGltYWV1c0VbISB0aW1hZXVzRSAlaW4lIGMoJycsICdcdCcpXSkKCiAgICAgICAgICBzdHJpbmdyOjpzdHJfbGVuZ3RoKHRpbWFldXNFKQpiYXNlOjpzdW0oc3RyaW5ncjo6c3RyX2xlbmd0aCh0aW1hZXVzRSkpCgp0aW1hZXVzRV9kZiA8LSB0aWJibGU6OnRpYmJsZShzZWN0aW9uX251bSA9IDE6YmFzZTo6bGVuZ3RoKHRpbWFldXNFKSwgc2VjdGlvbiA9IHRpbWFldXNFKQoKdGlkeV90aW1hZXVzRSA8LQogIHRpbWFldXNFX2RmICU+JQogICAgdGlkeXRleHQ6OnVubmVzdF90b2tlbnMob3V0cHV0ID0gd29yZCwgaW5wdXQgPSBzZWN0aW9uLCB0b19sb3dlciA9IFRSVUUpICU+JQogICAgZHBseXI6OmFudGlfam9pbih0aWR5dGV4dDo6c3RvcF93b3JkcywgYnkgPSAnd29yZCcpICU+JQogICAgZHBseXI6OmFudGlfam9pbih0aWJibGU6OnRpYmJsZSh3b3JkID0gYmFzZTo6YygnY2YnLCAnZmYnLCAnaS5lJywgJ2UuZycsICcxJywgJzInLCAnMycpKSwgYnkgPSAnd29yZCcpCiAgCnRpZHlfdGltYWV1c0UgJT4lCiAgZHBseXI6OmNvdW50KHdvcmQsIHNvcnQgPSBUUlVFKSAlPiUKICB1dGlsczo6aGVhZCgxMCkKCnRpZHlfdGltYWV1c0UgJT4lCiAgZHBseXI6OmNvdW50KHdvcmQsIHNvcnQgPSBUUlVFKSAlPiUKICBkcGx5cjo6ZmlsdGVyKG4gPiAzMCkgJT4lCiAgZHBseXI6Om11dGF0ZSh3b3JkID0gc3RhdHM6OnJlb3JkZXIod29yZCwgbikpICU+JQogIGdncGxvdDI6OmdncGxvdChnZ3Bsb3QyOjphZXMobiwgd29yZCkpICsKICAgIGdlb21fY29sKCkgKwogICAgbGFicyh5ID0gTlVMTCkKYGBgCgojIyBEYXRhIFZpc3VhbGl6YXRpb24KCkluY2x1ZGUgUiBjb2RlIGFuZCB3cml0dGVuIGV4cGxhbmF0aW9uIGZvciB5b3VyIGRhdGEgdmlzdWFsaXphdGlvbihzKSB3aXRoIGF0IGxlYXN0IDMgdmFyaWFibGVzLiBZb3UgbXVzdCBoYXZlICoqYXQgbGVhc3QqKiBvbmUgZ3JhcGguIFlvdSBtYXkgaGF2ZSBtb3JlIHRoYW4gb25lIChJIHdvdWxkIGVuY291cmFnZSB5b3UgdG8gaGF2ZSBtb3JlIHRoYW4gb25lKS4gCgojIyBDb25jbHVzaW9uCgpBbnN3ZXIgeW91ciByZXNlYXJjaCBxdWVzdGlvbiB1c2luZyB0aGUgZGF0YSBzZXRzIGFuZCB2aXN1YWxpemF0aW9ucyB5b3UgY3JlYXRlZC4=</div>
 
 
 

@@ -1,37 +1,78 @@
 ---
-title: "Final Project Basic Outline"
-author: "Names of all group members"
+title:  "Final Project Basic Outline"
+author: "Dave Friedman"
 output: html_notebook
 ---
 
-This is an outline for your final project. You can follow this outline, or you can modify it as you see fit. Do what works best for your project. 
+```r
+library(scales)
+library(textdata)
+library(tidytext)
+library(tidyverse)
+```
 
-## Research Question 
+## Research Question
 
 State your general specific question and why it is interesting. 
 
+## Data Processing
 
+* [Aristotle's Physics](https://classics.mit.edu/Aristotle/physics.html)
+* [Aristotle's Metaphysics](https://classics.mit.edu/Aristotle/metaphysics.html)
 
-## Data Processing 
+### Data Intake
 
-#### Data Intake 
+```r
+timaeusE <- base::readLines(con = 'timaeusE.txt')
+```
 
 Include R code and written explanation to import your **TWO** data sets.
 
-#### Data Wrangling 
+### Data Wrangling
 
-Include R code and written explanation for wangling your data (you can make multiple wrangled data sets). 
+#### Timaeus
 
+Include R code and written explanation for wangling your data (you can make multiple wrangled data sets).
 
+```r
+#base::writeLines(timaeusE)
 
+base::length(timaeusE)
+
+          stringr::str_length(timaeusE)
+base::sum(stringr::str_length(timaeusE))
+
+timaeusE  <- timaeusE[! timaeusE %in% c('', '\t')]
+base::length(timaeusE[! timaeusE %in% c('', '\t')])
+
+          stringr::str_length(timaeusE)
+base::sum(stringr::str_length(timaeusE))
+
+timaeusE_df <- tibble::tibble(section_num = 1:base::length(timaeusE), section = timaeusE)
+
+tidy_timaeusE <-
+  timaeusE_df %>%
+    tidytext::unnest_tokens(output = word, input = section, to_lower = TRUE) %>%
+    dplyr::anti_join(tidytext::stop_words, by = 'word') %>%
+    dplyr::anti_join(tibble::tibble(word = base::c('cf', 'ff', 'i.e', 'e.g', '1', '2', '3')), by = 'word')
+  
+tidy_timaeusE %>%
+  dplyr::count(word, sort = TRUE) %>%
+  utils::head(10)
+
+tidy_timaeusE %>%
+  dplyr::count(word, sort = TRUE) %>%
+  dplyr::filter(n > 30) %>%
+  dplyr::mutate(word = stats::reorder(word, n)) %>%
+  ggplot2::ggplot(ggplot2::aes(n, word)) +
+    geom_col() +
+    labs(y = NULL)
+```
 
 ## Data Visualization
 
 Include R code and written explanation for your data visualization(s) with at least 3 variables. You must have **at least** one graph. You may have more than one (I would encourage you to have more than one). 
 
-
-
-
 ## Conclusion
 
-Answer your research question using the data sets and visualizations you created. 
+Answer your research question using the data sets and visualizations you created.
