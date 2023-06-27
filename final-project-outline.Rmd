@@ -4,7 +4,7 @@ author: "Dave Friedman"
 output: html_notebook
 ---
 
-```r
+```{r}
 library(scales)
 library(textdata)
 library(tidytext)
@@ -13,7 +13,7 @@ library(tidyverse)
 
 ## Research Question
 
-State your general specific question and why it is interesting. 
+State your general specific question and why it is interesting.
 
 ## Data Processing
 
@@ -22,44 +22,87 @@ State your general specific question and why it is interesting.
 
 ### Data Intake
 
-```r
+#### Plato's _Timaeus_
+
+```{r}
 timaeusE <- base::readLines(con = 'timaeusE.txt')
 ```
 
-Include R code and written explanation to import your **TWO** data sets.
+```{r}
+base::length(timaeusE)
+```
+
+```{r}
+stringr::str_sub(timaeusE, 1, 25)[1:25]
+```
+
+#### Aristotle's _Physics_
+
+```{r}
+physicsE <- base::readLines(con = 'physicsE.txt')
+```
+
+```{r}
+base::length(physicsE)
+```
+
+```{r}
+stringr::str_sub(physicsE, 1, 25)[1:25]
+```
+
+#### Aristotle's _Metaphysics_
+
+```{r}
+metaphysicsE <- base::readLines(con = 'metaphysicsE.txt')
+```
+
+```{r}
+base::length(metaphysicsE)
+```
+
+```{r}
+stringr::str_sub(metaphysicsE, 1, 25)[1:25]
+```
 
 ### Data Wrangling
 
-#### Timaeus
+#### Plato's _Timaeus_
 
-Include R code and written explanation for wangling your data (you can make multiple wrangled data sets).
-
-```r
-#base::writeLines(timaeusE)
-
-base::length(timaeusE)
-
-          stringr::str_length(timaeusE)
-base::sum(stringr::str_length(timaeusE))
-
+```{r}
 timaeusE  <- timaeusE[! timaeusE %in% c('', '\t')]
+```
+
+```{r}
 base::length(timaeusE[! timaeusE %in% c('', '\t')])
+```
 
-          stringr::str_length(timaeusE)
+```{r}
+stringr::str_length(timaeusE)
+```
+
+```{r}
 base::sum(stringr::str_length(timaeusE))
+```
 
+```{r}
 timaeusE_df <- tibble::tibble(section_num = 1:base::length(timaeusE), section = timaeusE)
+```
 
+```{r}
 tidy_timaeusE <-
   timaeusE_df %>%
     tidytext::unnest_tokens(output = word, input = section, to_lower = TRUE) %>%
     dplyr::anti_join(tidytext::stop_words, by = 'word') %>%
     dplyr::anti_join(tibble::tibble(word = base::c('cf', 'ff', 'i.e', 'e.g', '1', '2', '3')), by = 'word')
+```
   
+```{r}
 tidy_timaeusE %>%
   dplyr::count(word, sort = TRUE) %>%
   utils::head(10)
+```
 
+```{r}
 tidy_timaeusE %>%
   dplyr::count(word, sort = TRUE) %>%
   dplyr::filter(n > 30) %>%
@@ -69,9 +112,154 @@ tidy_timaeusE %>%
     labs(y = NULL)
 ```
 
+#### Aristotle's _Physics_
+
+```{r}
+physicsE  <- physicsE[! physicsE %in% c('', '\t')]
+```
+
+```{r}
+base::length(physicsE[! physicsE %in% c('', '\t')])
+```
+
+```{r}
+stringr::str_length(physicsE)
+```
+
+```{r}
+base::sum(stringr::str_length(physicsE))
+```
+
+```{r}
+physicsE_df <- tibble::tibble(section_num = 1:base::length(physicsE), section = physicsE)
+```
+
+```{r}
+tidy_physicsE <-
+  physicsE_df %>%
+    tidytext::unnest_tokens(output = word, input = section, to_lower = TRUE) %>%
+    dplyr::anti_join(tidytext::stop_words, by = 'word') %>%
+    dplyr::anti_join(tibble::tibble(word = base::c('cf', 'ff', 'i.e', 'e.g', '1', '2', '3')), by = 'word')
+```
+  
+```{r}
+tidy_physicsE %>%
+  dplyr::count(word, sort = TRUE) %>%
+  utils::head(10)
+```
+
+```{r}
+tidy_physicsE %>%
+  dplyr::count(word, sort = TRUE) %>%
+  dplyr::filter(n > 45) %>%
+  dplyr::mutate(word = stats::reorder(word, n)) %>%
+  ggplot2::ggplot(ggplot2::aes(n, word)) +
+    geom_col() +
+    labs(y = NULL)
+```
+
+#### Aristotle's _Metaphysics_
+
+```{r}
+metaphysicsE  <- metaphysicsE[! metaphysicsE %in% c('', '\t')]
+```
+
+```{r}
+base::length(metaphysicsE[! metaphysicsE %in% c('', '\t')])
+```
+
+```{r}
+stringr::str_length(metaphysicsE)
+```
+
+```{r}
+base::sum(stringr::str_length(metaphysicsE))
+```
+
+```{r}
+metaphysicsE_df <- tibble::tibble(section_num = 1:base::length(metaphysicsE), section = metaphysicsE)
+```
+
+```{r}
+tidy_metaphysicsE <-
+  metaphysicsE_df %>%
+    tidytext::unnest_tokens(output = word, input = section, to_lower = TRUE) %>%
+    dplyr::anti_join(tidytext::stop_words, by = 'word') %>%
+    dplyr::anti_join(tibble::tibble(word = base::c('cf', 'ff', 'i.e', 'e.g', '1', '2', '3')), by = 'word')
+```
+  
+```{r}
+tidy_metaphysicsE %>%
+  dplyr::count(word, sort = TRUE) %>%
+  utils::head(10)
+```
+
+```{r}
+tidy_metaphysicsE %>%
+  dplyr::count(word, sort = TRUE) %>%
+  dplyr::filter(n > 75) %>%
+  dplyr::mutate(word = stats::reorder(word, n)) %>%
+  ggplot2::ggplot(ggplot2::aes(n, word)) +
+    geom_col() +
+    labs(y = NULL)
+```
+
+### Token Frequency
+
+```{r}
+frequency <- dplyr::bind_rows(dplyr::mutate(tidy_timaeusE,     book = 'Timaeus_Plato'),
+                              dplyr::mutate(tidy_physicsE,     book = 'Physics_Aristotle'),
+                              dplyr::mutate(tidy_metaphysicsE, book = 'Metaphysics_Aristotle')) %>%
+  dplyr::mutate(word = stringr::str_extract(word, "[a-z']+")) %>%
+  dplyr::count(book, word) %>%
+  dplyr::group_by(book) %>%
+  dplyr::mutate(proportion = n / sum(n)) %>%
+  dplyr::select(-n) %>%
+  tidyr::pivot_wider(names_from = book, values_from = proportion) %>%
+  tidyr::pivot_longer(Physics_Aristotle:Metaphysics_Aristotle, names_to = 'Aristotle', values_to = 'proportion')
+  
+frequency %>%
+  head(10)
+```
+
+### Correlation
+
+```{r}
+stats::cor.test(data = frequency[frequency$Aristotle == 'Metaphysics_Aristotle',], ~ proportion + Timaeus_Plato)
+stats::cor.test(data = frequency[frequency$Aristotle == 'Physics_Aristotle',],     ~ proportion + Timaeus_Plato)
+```
+
 ## Data Visualization
 
-Include R code and written explanation for your data visualization(s) with at least 3 variables. You must have **at least** one graph. You may have more than one (I would encourage you to have more than one). 
+```{r}
+ggplot(frequency, aes(x = proportion, y = Timaeus_Plato), color = abs(Timaeus_Plato - proportion)) +
+  geom_abline(color = 'gray40', lty = 2) +
+  geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
+  geom_text(aes(label = word), check_overlap = TRUE, vjust = 1.5) +
+  scale_x_log10(labels = percent_format()) +
+  scale_y_log10(labels = percent_format()) +
+  scale_color_gradient(limits = c(0, 0.001), low = 'darkslategray4', high = 'gray75') +
+  facet_wrap(~Aristotle, ncol = 2) +
+  theme(legend.position = 'none') +
+  labs(x = 'Aristotle', y = 'Plato')
+```
+
+```{r}
+tidy_books <- dplyr::bind_rows(dplyr::mutate(tidy_timaeusE,     book = 'Timaeus_Plato'),
+                               dplyr::mutate(tidy_physicsE,     book = 'Physics_Aristotle'),
+                               dplyr::mutate(tidy_metaphysicsE, book = 'Metaphysics_Aristotle')) %>%
+  dplyr::mutate(word = stringr::str_extract(word, "[a-z']+"))
+utils::head(tidy_books)
+
+tidy_books %>%
+  dplyr::inner_join(tidytext::get_sentiments('bing')) %>%
+  dplyr::count(book, index = section_num, sentiment) %>%
+  tidyr::pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>%
+  dplyr::mutate(sentiment = positive - negative) %>%
+  ggplot2::ggplot(ggplot2::aes(index, sentiment, fill = book)) +
+    ggplot2::geom_col(show.legend = FALSE) +
+    ggplot2::facet_wrap(~book, ncol = 2, scales = 'free_x')
+```
 
 ## Conclusion
 
